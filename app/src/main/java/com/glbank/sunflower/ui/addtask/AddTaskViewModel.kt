@@ -26,12 +26,13 @@ class AddTaskViewModel(application: Application) : AndroidViewModel(application)
 
     private suspend fun insertNote(task: Task) = taskRepository.insertTask(task)
 
-    private suspend fun updateNote(task: Task) = taskRepository.updateTask(task)
+    private suspend fun updateTask(task: Task) = taskRepository.updateTask(task)
 
     fun onSaveNote() {
         val title = title.value.toString().trim()
         val desc = des.value.toString().trim()
-        val task = Task(title = title, des = desc)
+        val id  = task.value?.id
+        val task = Task(id = id, title = title, des = desc)
 
         if (title.isNullOrEmpty() || desc.isNullOrEmpty()) {
             isInsertSuccess.value = false
@@ -39,9 +40,16 @@ class AddTaskViewModel(application: Application) : AndroidViewModel(application)
         }
 
         viewModelScope.launch {
-            insertNote(task).also {
-                isInsertSuccess.value = true
+            if(task.id != null){
+                updateTask(task).also {
+                    isInsertSuccess.value = true
+                }
+            } else{
+                insertNote(task).also {
+                    isInsertSuccess.value = true
+                }
             }
+
         }
     }
 
